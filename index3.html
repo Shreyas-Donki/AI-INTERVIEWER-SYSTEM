@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Video Player</title>
+        <link rel="stylesheet" href="index.css">
+    </head>
+    <!-- <style src="index.css"></style> -->
+    <body>
+
+        <header>
+            <h1>Welcome to the Interview Platform</h1>
+        </header>
+        <nav>
+            <ul>
+                <li><a href="#">Home</a></li>
+                &nbsp;
+
+                <li><a href="#">Schedule an Interview</a></li>
+                &nbsp;
+
+                <li><a href="#">Interviews</a></li>
+                &nbsp;
+
+                <li><a href="#">Feedback</a></li>
+                &nbsp;
+
+                <li><a href="#">Logout</a></li>
+            </ul>
+        </nav> <section class="interviewer-section">
+            <h2>Interviewer</h2>
+
+        </div> 
+    </section>
+    <section class="candidate-section">
+        <!-- <h2>Candidate</h2> -->
+
+        <video id="videoPlayer" width="1000" height="800" controls autoplay></video><br><br>
+        <button id="playNext">Next Question</button>
+
+        <script>
+            const videoPlayer = document.getElementById('videoPlayer');
+            const playNextButton = document.getElementById('playNext');
+            
+            // Define your video queue as an array of video sources
+            const videoQueue = [
+            "1.mp4",
+            "2.mp4",
+            "3.mp4" ,
+            "4.mp4" ,
+            "5.mp4" ,
+            "7.mp4" ,
+            "8.mp4" ,
+            "9.mp4" ,
+            "10.mp4",
+            "11.mp4",
+            "p1.mp4",
+            "p2.mp4",
+            "p3.mp4",
+            "p4.mp4"
+                // Add more video URLs as needed
+            ];
+    
+            let currentVideoIndex = 0;
+    
+            // Function to play the next video in the queue
+            function playNextVideo() {
+                if (currentVideoIndex < videoQueue.length) {
+                    videoPlayer.src = videoQueue[currentVideoIndex];
+                    videoPlayer.play();
+                    currentVideoIndex++;
+                } else {
+                    // Queue is empty, you can handle this situation
+                    console.log('Queue is empty');
+                }
+            }
+    
+            // Event listener for the "Play Next" button
+            playNextButton.addEventListener('click', playNextVideo);
+    
+            // Play the first video when the page loads
+            playNextVideo();
+        </script>
+
+        <div class="chat-container">
+            <div class="chat-header">
+                <h1>Interview's Questions</h1>
+            </div>
+            <div class="chat-content" id="chat-content">
+                <!-- Chat messages will appear here -->
+            </div>
+            <div class="chat-video" id="chat-video">
+                <!-- Video player will appear here -->
+            </div>
+            <div class="chat-input">
+                <input type="textarea" id="user-input"
+                    placeholder="Your answer...">
+                <button id="send-button">Submit</button>
+            </div>
+        </div>
+        <button id="start-btn">Start Answer</button>
+        <div id="instructions">Instructions: Click the button to start answer
+            recognition.</div>
+        <textarea id="textbox" rows="4" cols="50"
+            placeholder="Transcribed text will appear here"></textarea>
+        <script>
+            const chatContent = document.getElementById('chat-content');
+            const userInput = document.getElementById('user-input');
+            const sendButton = document.getElementById('send-button');
+            const textbox = document.getElementById("textbox");
+            const questions = [
+                // Add your questions here
+                'Tell Me About Yourself? ...',
+        'Where Do You See Yourself in 5 Years? ...',
+        'What Are Your Biggest Achievements? ...',
+        'How Do You Handle Stress and Pressure? ...',
+        'Why Are You Interested in this Job? ...',
+        
+        'Do you have any technical certifications?',
+        'How many programming languages do you know?',
+        'What are the different types of OS you are comfortable working with?',
+        'What is the extent of your technical expertise?',
+        'How many development tools have you used?',
+    
+        'What is a data structure?',
+        'What is a linked list?',
+        'What is the difference between an array and a linked list?',
+        // 'What is LIFO?'
+        // 'What is FIFO?'
+        'What is a stack?'    ,
+        'What are binary trees?'
+                
+            ];
+            let currentQuestionIndex = 0;
+    
+            // Function to append a message to the chat content
+            function appendMessage(message) {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message');
+                messageDiv.textContent = message;
+                chatContent.appendChild(messageDiv);
+            }
+    
+            
+    
+            // Event listener for send button click
+            sendButton.addEventListener('click', () => {
+                const userAnswer = userInput.value.trim();
+                if (userAnswer === '') return;
+                const question = questions[currentQuestionIndex];
+                appendMessage(`You: ${userAnswer}`);
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    setTimeout(askQuestion, 1000);
+                } else {
+                    appendMessage('Interviewer: Thank you for the conversation.');
+                    userInput.disabled = true;
+                    sendButton.disabled = true;
+                }
+                userInput.value = ''; // Clear the user-input field
+                textbox.value = ''; // Clear the transcribed text
+            });
+    
+    
+            // Function to ask the current question
+            function askQuestion() {
+                const question = questions[currentQuestionIndex];
+                appendMessage(`Interviewer: ${question}`);
+            }
+    
+            // Initial question
+            askQuestion();
+    
+            // Voice recognition setup
+            var speechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+            if (!speechRecognition) {
+                alert("Speech recognition is not supported in your browser.");
+            } else {
+                var recognition = new speechRecognition();
+                var content = '';
+    
+                recognition.continuous = true;
+    
+                recognition.onstart = function () {
+                    instructions.textContent = "Voice Recognition is on";
+                }
+    
+                recognition.onspeechend = function () {
+                    instructions.textContent = "No activity";
+                }
+    
+                recognition.onerror = function (event) {
+                    instructions.textContent = "Error: " + event.error;
+                }
+    
+                recognition.onresult = function (event) {
+                    var current = event.resultIndex;
+                    var transcript = event.results[current][0].transcript;
+                    content += transcript;
+                    textbox.value = content;
+                    userInput.value = content; // Update the user-input field with transcribed text
+                }
+    
+                document.getElementById("start-btn").addEventListener("click", function (event) {
+                    if (content.length) {
+                        content -= " "; // Add a space if there's existing content
+                    }
+                    recognition.start();
+                });
+            }
+        </script>
+    </body>
+    <footer>
+        <p>&copy; 2023 Interview Website</p>
+    </footer>
+</html>
